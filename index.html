@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}</style>
+<title>마음속 밑줄</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800;900&display=swap">
+<style>
+/* 배치: 넓은 화면은 성취기준 카드(왼쪽) + 제출 도크(오른쪽 고정), 좁은 화면은 도크가 아래 막대가 된다.
+   교사 화면은 비밀번호 문 → 지표 3칸 → 선택 지도와 순위 2단 → 관점 카드. */
+:root{
+  --bg:#f5f7fb;--glow:#dfe8ff;--surface:#fff;--surface-2:#f1f4fb;--surface-3:#f8f9fc;--track:#e8ecf4;
+  --line:#dbe1ed;--ink:#14213d;--text:#25324d;--muted:#667188;
+  --blue:#1748d1;--blue-deep:#173fae;--blue-text:#1748d1;--blue-tint:#e9efff;--on-blue:#fff;--on-blue-soft:#dce5ff;
+  --yellow:#ffd84d;--yellow-ink:#4d3900;--pick-bg:#fff2a8;--pick-edge:#e8c83b;--pick-under:#efc51f;--pick-ink:#143486;
+  --mint:#92e2d4;--mint-ink:#073d35;--heat:#1748d1;--heat-ink:#10265e;--heat-hot:#fff;
+  --toast-bg:#17233d;--toast-ink:#fff;--danger:#b8321f;--shadow:rgba(30,45,78,.09);--scrim:rgba(20,33,61,.45);
+  --font:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1322;--glow:#182758;--surface:#161e33;--surface-2:#1d2742;--surface-3:#121a2e;--track:#28334f;
+  --line:#2b3654;--ink:#eef2fb;--text:#d7deee;--muted:#9aa5bd;
+  --blue:#2f5fe6;--blue-deep:#1b3f9e;--blue-text:#9db8ff;--blue-tint:#1c2a55;--on-blue:#fff;--on-blue-soft:#cfdcff;
+  --yellow:#ffd84d;--yellow-ink:#4d3900;--pick-bg:#57490c;--pick-edge:#8a7413;--pick-under:#efc51f;--pick-ink:#fff3b0;
+  --mint:#92e2d4;--mint-ink:#073d35;--heat:#3e6cf0;--heat-ink:#f2f5ff;--heat-hot:#fff;
+  --toast-bg:#eef2fb;--toast-ink:#14213d;--danger:#ff8a78;--shadow:rgba(0,0,0,.35);--scrim:rgba(0,0,0,.6);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1322;--glow:#182758;--surface:#161e33;--surface-2:#1d2742;--surface-3:#121a2e;--track:#28334f;
+  --line:#2b3654;--ink:#eef2fb;--text:#d7deee;--muted:#9aa5bd;
+  --blue:#2f5fe6;--blue-deep:#1b3f9e;--blue-text:#9db8ff;--blue-tint:#1c2a55;--on-blue:#fff;--on-blue-soft:#cfdcff;
+  --yellow:#ffd84d;--yellow-ink:#4d3900;--pick-bg:#57490c;--pick-edge:#8a7413;--pick-under:#efc51f;--pick-ink:#fff3b0;
+  --mint:#92e2d4;--mint-ink:#073d35;--heat:#3e6cf0;--heat-ink:#f2f5ff;--heat-hot:#fff;
+  --toast-bg:#eef2fb;--toast-ink:#14213d;--danger:#ff8a78;--shadow:rgba(0,0,0,.35);--scrim:rgba(0,0,0,.6);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 90% 0,var(--glow) 0,transparent 28rem),var(--bg);color:var(--ink);font-family:var(--font);font-size:16px}
+button,input{font:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent;cursor:pointer}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+h1,h2,h3{text-wrap:balance}
+
+.shell{padding:0 16px 80px}
+.top{min-height:78px;max-width:1120px;margin:auto;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line)}
+.logo{flex:none;width:43px;height:43px;display:grid;place-items:center;border-radius:14px;color:var(--on-blue);background:var(--blue);font-size:22px;box-shadow:0 8px 24px var(--shadow)}
+.brand{min-width:0}
+.eyebrow{margin:0 0 2px;color:var(--muted);font-size:12px;font-weight:800}
+.top h1{margin:0;font-size:20px}
+.count{flex:none;margin-left:auto;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:99px;color:var(--blue-text);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:auto}
+
+.modes{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;padding:20px 0}
+.modebox,.bandbox{display:grid;grid-template-columns:1fr 1fr;padding:5px;background:var(--track);border:1px solid var(--line);border-radius:17px}
+.modebox{width:min(100%,430px)}
+.bandbox{grid-template-columns:repeat(3,1fr);width:min(100%,390px)}
+.mode,.band{min-height:41px;padding:0 10px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-weight:900}
+.band{font-size:14px}
+.mode.active,.band.active{background:var(--surface);color:var(--blue-text);box-shadow:0 5px 18px var(--shadow)}
+
+.student{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.student>div{min-width:0}
+.intro{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 24px;color:var(--on-blue);background:var(--blue-deep);border-radius:24px;box-shadow:0 15px 40px var(--shadow)}
+.step{display:inline-grid;place-items:center;width:28px;height:28px;margin-bottom:9px;border-radius:9px;background:var(--yellow);color:var(--yellow-ink);font-weight:900}
+.intro h2,.dock h2{margin:0;font-size:20px}
+.intro p{margin:7px 0 0;color:var(--on-blue-soft);font-size:14px;line-height:1.5}
+.demo{flex:none;padding:12px 14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:14px;font-size:13px;font-weight:800}
+.demo mark{padding:2px 5px;border-radius:5px;background:var(--yellow);color:var(--yellow-ink)}
+
+.areas{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:18px 1px 14px}
+.areas::-webkit-scrollbar{display:none}
+.area{flex:0 0 auto;min-height:40px;padding:0 15px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font-size:14px;font-weight:800}
+.area em{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--pick-bg);color:var(--pick-ink);font-style:normal;font-size:12px;font-variant-numeric:tabular-nums}
+.area.active{color:var(--on-blue);background:var(--blue);border-color:var(--blue)}
+.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:10px;padding:9px 3px 13px}
+.sectionhead h2{margin:0;font-size:21px}
+.sectionhead p{margin:0;color:var(--muted);font-size:13px;font-weight:700}
+
+.cards{display:grid;gap:11px}
+.card{padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 5px 18px var(--shadow)}
+.card code,.heat code{display:inline-block;margin-bottom:9px;color:var(--blue-text);font:900 13px var(--font)}
+.words{line-height:2.75;color:var(--text);font-size:16px}
+.unit{white-space:nowrap}
+.word{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:0 1px;padding:2px 3px;vertical-align:middle;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text);font-size:16px;font-weight:800}
+.word:hover{background:var(--blue-tint);color:var(--blue-text)}
+.word.on{min-width:48px;color:var(--pick-ink);background:var(--pick-bg);border-color:var(--pick-edge);box-shadow:inset 0 -3px var(--pick-under)}
+.blankline{display:block;width:100%;min-width:35px;height:2px;background:var(--pick-ink)}
+
+.side{position:sticky;top:18px}
+.dock{padding:23px;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 16px 40px var(--shadow)}
+.dock>p{margin:7px 0 18px;color:var(--muted);font-size:14px;line-height:1.55}
+.dock label,.gatecard label{display:block;margin-bottom:7px;font-size:13px;font-weight:900}
+.nick,.gatecard input{width:100%;height:48px;padding:0 13px;border:1px solid var(--line);border-radius:13px;background:var(--surface);font-weight:700}
+.meter{display:flex;justify-content:space-between;align-items:center;margin:14px 0;padding:12px 14px;background:var(--surface-2);border-radius:13px;font-size:13px}
+.meter strong{color:var(--blue-text);font-size:17px;font-variant-numeric:tabular-nums}
+.actions{display:grid;gap:8px}
+.btn{min-height:46px;padding:0 15px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font-weight:900}
+.btn.primary{color:var(--on-blue);background:var(--blue);border-color:var(--blue);box-shadow:0 8px 20px var(--shadow)}
+.btn:disabled{opacity:.55;cursor:default}
+.dock .smallnote{margin:14px 0 0;padding-top:13px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+
+.done{margin-top:18px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:22px}
+.done h2{margin:0 0 4px;font-size:17px}
+.done>p{margin:0 0 13px;color:var(--muted);font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{padding:6px 9px;background:var(--pick-bg);color:var(--pick-ink);border-radius:8px;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+
+.gate{display:grid;place-items:center;padding:10px 0 30px}
+.gatecard{width:min(100%,420px);padding:26px;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 16px 40px var(--shadow)}
+.gatecard h2{margin:0 0 8px;font-size:22px}
+.gatemsg{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.55}
+.gatecard form{display:grid;gap:8px}
+.gatecard label{margin:8px 0 0}
+.gatecard .btn{margin-top:8px}
+.error{min-height:1.4em;margin:10px 0 0;color:var(--danger);font-size:13px;font-weight:800}
+
+.teacherhead{display:flex;align-items:end;justify-content:space-between;gap:14px;padding:10px 2px 20px}
+.teacherhead h2{margin:0 0 6px;font-size:31px;letter-spacing:-1px}
+.teacherhead p:last-child{margin:0;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.metric{min-width:0;min-height:138px;padding:19px;border-radius:21px;background:var(--blue);color:var(--on-blue)}
+.metric:nth-child(2){background:var(--yellow);color:var(--yellow-ink)}
+.metric:nth-child(3){background:var(--mint);color:var(--mint-ink)}
+.metric p{margin:0 0 8px;font-size:13px;font-weight:800;opacity:.78}
+.metric strong{display:block;font-size:30px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.dash{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.75fr);gap:14px;align-items:start}
+.panel{min-width:0;padding:21px;background:var(--surface);border:1px solid var(--line);border-radius:22px}
+.panel h3{margin:0 0 3px}
+.panel .sub{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+
+.wholabel{margin:18px 0 8px;font-size:13px;font-weight:900}
+.whobar{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface-3);color:var(--text);font-size:13px;font-weight:800}
+.chip em{margin-left:5px;color:var(--muted);font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.chip.active{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.chip.active em{color:var(--on-blue-soft)}
+.viewbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:14px;padding:12px 14px;background:var(--pick-bg);color:var(--pick-ink);border-radius:13px;font-size:13px;font-weight:700}
+.viewbar strong{font-size:15px}
+.viewbar .linkbtn{margin-left:auto}
+
+.heatlist{display:grid;gap:10px}
+.heat{padding:14px;background:var(--surface-3);border:1px solid var(--line);border-radius:15px}
+.heat p{margin:0;color:var(--text);font-size:15px;line-height:2.25}
+.heatword{margin:0 1px;padding:3px 5px;border:0;border-radius:6px;background:color-mix(in srgb,var(--heat) var(--p),transparent);color:var(--heat-ink);font-size:inherit;font-weight:850;line-height:1.3}
+.heatword sup{margin-left:2px;color:var(--blue-text);font-size:10px;font-variant-numeric:tabular-nums}
+.heatword.hot,.heatword.hot sup{color:var(--heat-hot)}
+.heatword.open{outline:2px solid var(--yellow);outline-offset:1px}
+.mine{margin:0 1px;padding:3px 5px;border-radius:6px;background:var(--pick-bg);color:var(--pick-ink);font-weight:850;box-shadow:inset 0 -3px var(--pick-under)}
+.pickers{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.pickers p{margin:0 0 8px;font-size:13px;line-height:1.5}
+
+.ranking{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:14px}
+.ranking li{display:grid;grid-template-columns:25px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ranking li>span{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--surface-2);color:var(--blue-text);font-size:11px;font-weight:900}
+.ranking b{font-size:13px;font-variant-numeric:tabular-nums}
+.ranking small{margin-left:5px;color:var(--muted);font-size:11px;font-weight:700}
+.bar{height:5px;margin-top:5px;overflow:hidden;border-radius:9px;background:var(--track)}
+.bar i{display:block;height:100%;background:var(--blue)}
+.empty{padding:70px 20px;background:var(--surface);border:1px dashed var(--line);border-radius:22px;text-align:center;color:var(--muted);line-height:1.7}
+.perspective{margin-top:14px}
+.students{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:15px}
+.studentchip{min-width:0;padding:12px;text-align:left;background:var(--surface-3);border:1px solid var(--line);border-radius:14px}
+.studentchip strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.studentchip small{color:var(--muted)}
+.studentchip span{display:inline-block;margin-top:7px;padding:4px 7px;border-radius:7px;background:var(--pick-bg);color:var(--pick-ink);font-size:11px;font-weight:900}
+.manage{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:flex-end;padding:16px 2px 0}
+.linkbtn{padding:6px 2px;border:0;background:none;color:var(--blue-text);font-size:13px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.linkbtn.danger{color:var(--danger)}
+
+.toast{position:fixed;z-index:99;left:50%;top:calc(15px + env(safe-area-inset-top,0px));max-width:calc(100% - 32px);transform:translate(-50%,-160px);padding:12px 16px;background:var(--toast-bg);color:var(--toast-ink);border-radius:12px;box-shadow:0 10px 30px var(--shadow);transition:transform .25s;font-size:14px;font-weight:800}
+.toast.show{transform:translate(-50%,0)}
+.backdrop{position:fixed;z-index:60;inset:0;display:grid;place-items:center;padding:16px;background:var(--scrim)}
+.modal{width:min(100%,400px);padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:22px}
+.modal h2{margin:0 0 8px;font-size:19px}
+.modal p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
+.modalactions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+@media (max-width:800px){
+  .shell{padding-bottom:122px}
+  .top{min-height:70px}
+  .student{display:block}
+  .intro{padding:20px;border-radius:20px}
+  .demo{display:none}
+  .word{min-height:43px}
+  .side{position:fixed;z-index:20;left:0;right:0;bottom:0;top:auto;padding:8px 11px calc(8px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 93%,transparent);border-top:1px solid var(--line);backdrop-filter:blur(12px)}
+  .dock{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px;border-radius:17px}
+  .dock .step,.dock h2,.dock>p,.dock label,.dock .meter,.dock .smallnote,.actions .clear{display:none}
+  .actions{display:block}
+  .nick{height:46px}
+  .teacherhead{align-items:start}
+  .teacherhead h2{font-size:24px}
+  .teacherhead p:last-child{font-size:13px}
+  .metrics{grid-template-columns:1fr 1fr}
+  .metric{min-height:120px;padding:15px}
+  .metric:nth-child(3){grid-column:span 2;min-height:105px}
+  .dash{grid-template-columns:1fr}
+  .panel{padding:16px}
+  .students{grid-template-columns:1fr 1fr}
+}
+@media (max-width:450px){
+  .top h1{font-size:17px}
+  .eyebrow{font-size:10px}
+  .metric strong{font-size:25px}
+  .mode{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<main class="shell">
+  <header class="top">
+    <div class="logo" aria-hidden="true">▤</div>
+    <div class="brand"><p class="eyebrow" id="bandEyebrow">초등 국어 1~2학년군</p><h1>마음속 밑줄</h1></div>
+    <div class="count">✦ <span id="topCount">0</span>개 선택</div>
+  </header>
+
+  <div class="wrap">
+    <div class="modes">
+      <div class="modebox">
+        <button class="mode active" data-mode="student" aria-pressed="true">💡 학생 활동</button>
+        <button class="mode" data-mode="teacher" aria-pressed="false">▥ 교사 결과</button>
+      </div>
+      <div class="bandbox" aria-label="학년군">
+        <button class="band active" data-band="g12" aria-pressed="true">1~2학년군</button>
+        <button class="band" data-band="g34" aria-pressed="false">3~4학년군</button>
+        <button class="band" data-band="g56" aria-pressed="false">5~6학년군</button>
+      </div>
+    </div>
+
+    <section id="student" class="student">
+      <div>
+        <div class="intro">
+          <div><span class="step">1</span><h2 id="introTitle">중요한 핵심 명사를 눌러 보세요</h2><p id="introSub">조사는 그대로 남고 명사만 빈칸이 돼요. 다시 누르면 선택이 풀려요.</p></div>
+          <div class="demo" id="introDemo">순서를 → <mark>＿＿를</mark></div>
+        </div>
+        <nav class="areas" id="studentAreas" aria-label="국어 영역"></nav>
+        <div class="sectionhead"><h2 id="areaTitle">듣기·말하기</h2><p id="areaCount">5개 성취기준</p></div>
+        <div class="cards" id="cards"></div>
+        <section id="done" class="done" hidden>
+          <h2 id="doneTitle"></h2>
+          <p>같은 별명으로 다시 제출하면 이전 내용이 바뀝니다.</p>
+          <div class="tags" id="doneTags"></div>
+        </section>
+      </div>
+      <aside class="side">
+        <div class="dock">
+          <span class="step">2</span>
+          <h2>내 빈칸 지도</h2>
+          <p>별명을 적고 제출하면 선생님이 내 선택을 볼 수 있어요.</p>
+          <label for="nick">별명</label>
+          <input class="nick" id="nick" maxlength="12" placeholder="예: 책읽는고래" autocomplete="off">
+          <div class="meter"><span>선택한 핵심어</span><strong id="meter">0개</strong></div>
+          <div class="actions">
+            <button class="btn primary" id="submit">학급에 제출</button>
+            <button class="btn clear" id="clear">모두 지우기</button>
+          </div>
+          <p class="smallnote">별명과 선택 위치만 저장해요. 학급 결과는 선생님만 열 수 있어요.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section id="teacher" class="teacher" hidden>
+      <div id="gate" class="gate">
+        <div class="gatecard">
+          <p class="eyebrow">교사 전용</p>
+          <h2 id="gateTitle">결과를 확인합니다</h2>
+          <p class="gatemsg" id="gateMsg">불러오는 중이에요.</p>
+          <form id="unlockForm" hidden>
+            <label for="pw">비밀번호</label>
+            <input id="pw" type="password" autocomplete="off">
+            <button class="btn primary" type="submit">결과 보기</button>
+          </form>
+          <p class="error" id="gateErr" role="alert"></p>
+        </div>
+      </div>
+
+      <div id="board" hidden>
+        <div class="teacherhead">
+          <div><p class="eyebrow">실시간 학급 보기 · <span id="tBand">1~2학년군</span></p><h2>학생들의 마음속 밑줄</h2><p>색이 진할수록 더 많은 학생이 중요하다고 고른 낱말입니다.</p></div>
+          <div style="display:flex;gap:8px"><button class="btn" id="refresh">새로고침</button><button class="btn" id="lock">잠그기</button></div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><p>제출 학생</p><strong id="studentTotal">0명</strong></div>
+          <div class="metric"><p>가장 많이 고른 말</p><strong id="topWord">아직 없음</strong></div>
+          <div class="metric"><p>서로 다른 선택 위치</p><strong id="positionTotal">0곳</strong></div>
+        </div>
+        <div id="empty" class="empty">아직 제출한 학생이 없어요.<br>첫 제출이 들어오면 선택 지도와 별명별 답안이 나타납니다.</div>
+        <div id="dashboard" hidden>
+          <div class="dash">
+            <section class="panel">
+              <h3>선택 지도</h3>
+              <p class="sub" id="mapSub"></p>
+              <p class="wholabel">누구의 답안을 볼까요?</p>
+              <div class="whobar" id="who"></div>
+              <div class="viewbar" id="viewbar" hidden></div>
+              <nav class="areas" id="teacherAreas" aria-label="국어 영역"></nav>
+              <div class="heatlist" id="heatlist"></div>
+            </section>
+            <aside class="panel">
+              <h3>많이 고른 표현</h3>
+              <p class="sub">전체 영역 기준</p>
+              <ol class="ranking" id="ranking"></ol>
+            </aside>
+          </div>
+          <section class="panel perspective" id="perspective">
+            <h3>다른 관점이 큰 학생</h3>
+            <p class="sub">다름은 틀림이 아니라 대화를 시작할 질문이에요. 별명을 누르면 그 학생의 답안이 열려요.</p>
+            <div class="students" id="students"></div>
+          </section>
+        </div>
+        <div class="manage">
+
+          <button class="linkbtn danger" id="clearBand" hidden>이 학년군 제출 모두 지우기</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle"></h2>
+    <p id="modalBody"></p>
+    <div class="modalactions"><button class="btn" id="modalCancel">취소</button><button class="btn primary" id="modalOk">확인</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- 성취기준 데이터 ---------- */
+var G12=[
+{id:"speak-01",area:"듣기·말하기",code:"[2국01-01]",text:"중요한 내용이나 일이 일어난 순서를 고려하며 듣고 말한다.",keywords:["내용","일","순서"]},
+{id:"speak-02",area:"듣기·말하기",code:"[2국01-02]",text:"바르고 고운 말로 서로의 감정을 나누며 듣고 말한다.",keywords:["말","감정"]},
+{id:"speak-03",area:"듣기·말하기",code:"[2국01-03]",text:"상대의 말을 집중하여 듣고 말차례를 지키며 대화한다.",keywords:["상대","말","말차례","대화"]},
+{id:"speak-04",area:"듣기·말하기",code:"[2국01-04]",text:"자신의 경험이나 생각을 바른 자세로 발표한다.",keywords:["경험","생각","자세","발표"]},
+{id:"speak-05",area:"듣기·말하기",code:"[2국01-05]",text:"듣기와 말하기에 관심과 흥미를 가진다.",keywords:["듣기","말하기","관심","흥미"]},
+{id:"read-01",area:"읽기",code:"[2국02-01]",text:"글자, 단어, 문장, 짧은 글을 정확하게 소리 내어 읽는다.",keywords:["글자","단어","문장","글","소리"]},
+{id:"read-02",area:"읽기",code:"[2국02-02]",text:"의미가 잘 드러나도록 문장과 짧은 글을 알맞게 띄어 읽는다.",keywords:["의미","문장","글"]},
+{id:"read-03",area:"읽기",code:"[2국02-03]",text:"글을 읽고 중심 내용을 확인한다.",keywords:["글","중심 내용"]},
+{id:"read-04",area:"읽기",code:"[2국02-04]",text:"인물의 마음이나 생각을 짐작하고 이를 자신과 비교하며 글을 읽는다.",keywords:["인물","마음","생각","글"]},
+{id:"read-05",area:"읽기",code:"[2국02-05]",text:"읽기에 흥미를 가지고 즐겨 읽는 태도를 지닌다.",keywords:["읽기","흥미","태도"]},
+{id:"write-01",area:"쓰기",code:"[2국03-01]",text:"글자와 단어를 바르게 쓴다.",keywords:["글자","단어"]},
+{id:"write-02",area:"쓰기",code:"[2국03-02]",text:"쓰기에 흥미를 가지며 자신의 생각이나 느낌을 문장으로 표현한다.",keywords:["쓰기","흥미","생각","느낌","문장"]},
+{id:"write-03",area:"쓰기",code:"[2국03-03]",text:"주변 소재에 대해 소개하는 글을 쓴다.",keywords:["주변 소재","글"]},
+{id:"write-04",area:"쓰기",code:"[2국03-04]",text:"겪은 일을 표현하는 글을 자유롭게 쓰고, 쓴 글을 함께 읽고 생각이나 느낌을 나눈다.",keywords:["일","글","글","생각","느낌"]},
+{id:"grammar-01",area:"문법",code:"[2국04-01]",text:"한글 자모의 이름과 소릿값을 알고 정확하게 발음하고 쓴다.",keywords:["한글 자모","이름","소릿값"]},
+{id:"grammar-02",area:"문법",code:"[2국04-02]",text:"소리와 표기가 다를 수 있음을 알고 단어를 바르게 읽고 쓴다.",keywords:["소리","표기","단어"]},
+{id:"grammar-03",area:"문법",code:"[2국04-03]",text:"문장과 문장 부호를 알맞게 쓰고 한글에 호기심을 가진다.",keywords:["문장","문장 부호","한글","호기심"]},
+{id:"literature-01",area:"문학",code:"[2국05-01]",text:"말놀이, 낭송 등을 통해 말의 재미와 즐거움을 느낀다.",keywords:["말놀이","낭송","말","재미","즐거움"]},
+{id:"literature-02",area:"문학",code:"[2국05-02]",text:"작품을 듣거나 읽으면서 느끼거나 생각한 점을 말한다.",keywords:["작품","생각","점"]},
+{id:"literature-03",area:"문학",code:"[2국05-03]",text:"작품 속 인물의 모습, 행동, 마음을 상상하여 시, 노래, 이야기, 그림 등으로 표현한다.",keywords:["작품","인물","모습","행동","마음","시","노래","이야기","그림"]},
+{id:"literature-04",area:"문학",code:"[2국05-04]",text:"시나 노래, 이야기에 흥미를 가진다.",keywords:["시","노래","이야기","흥미"]},
+{id:"media-01",area:"매체",code:"[2국06-01]",text:"일상의 다양한 매체와 매체 자료에 흥미와 관심을 가진다.",keywords:["일상","매체","매체 자료","흥미","관심"]},
+{id:"media-02",area:"매체",code:"[2국06-02]",text:"일상의 경험과 생각을 글과 그림으로 표현한다.",keywords:["일상","경험","생각","글","그림"]}
+];
+
+var G34_SRC=[
+["듣기·말하기",[
+ ["4국01-01","중요한 내용과 주제를 파악하며 듣고 그 내용을 요약한다.",["중요","내용","주제","파악","내용","요약"]],
+ ["4국01-02","원인과 결과의 관계를 고려하여 내용을 예측하며 듣고 말한다.",["원인","결과","관계","고려","내용","예측"]],
+ ["4국01-03","상황에 적절한 준언어·비언어적 표현을 활용하여 듣고 말한다.",["상황","적절","준언어·비언어적 표현","활용"]],
+ ["4국01-04","상황과 상대의 입장을 이해하고 예의를 지키며 대화한다.",["상황","상대","입장","이해","예의","대화"]],
+ ["4국01-05","목적과 주제에 알맞게 자료를 정리하여 자신감 있게 발표한다.",["목적","주제","자료","정리","자신감","발표"]],
+ ["4국01-06","주제에 적절한 의견과 이유를 제시하고 서로의 생각을 교환하며 토의한다.",["주제","적절","의견","이유","제시","생각","교환","토의"]]]],
+["읽기",[
+ ["4국02-01","글의 의미를 파악하며 유창하게 글을 읽는다.",["글","의미","파악","유창","글"]],
+ ["4국02-02","문단과 글에서 중심 생각을 파악하고 내용을 간추린다.",["문단","글","중심 생각","파악","내용"]],
+ ["4국02-03","질문을 활용하여 글을 예측하며 읽고 자신의 읽기 과정을 점검한다.",["질문","활용","글","예측","읽기 과정","점검"]],
+ ["4국02-04","글에 나타난 사실과 의견을 구분하고 필자와 자신의 의견을 비교한다.",["글","사실","의견","구분","필자","의견","비교"]],
+ ["4국02-05","글이나 자료의 출처가 믿을 만한지 판단한다.",["글","자료","출처","판단"]],
+ ["4국02-06","바람직한 읽기 습관을 형성하고 읽기에 대한 자신감을 기른다.",["읽기 습관","형성","읽기","자신감"]]]],
+["쓰기",[
+ ["4국03-01","중심 문장과 뒷받침 문장을 갖추어 문단을 쓰고, 문장과 문단을 중심으로 고쳐 쓴다.",["중심 문장","뒷받침 문장","문단","문장","문단","중심"]],
+ ["4국03-02","절차와 결과가 드러나게 정확한 표현으로 보고하는 글을 쓴다.",["절차","결과","정확","표현","보고","글"]],
+ ["4국03-03","대상에 대한 자신의 의견과 그렇게 생각한 이유가 드러나게 글을 쓴다.",["대상","의견","생각","이유","글"]],
+ ["4국03-04","목적과 주제를 고려하여 독자에게 마음을 전하는 글을 쓴다.",["목적","주제","고려","독자","마음","글"]],
+ ["4국03-05","자신의 쓰기 과정을 점검하며 쓰기에 자신감을 갖는다.",["쓰기 과정","점검","쓰기","자신감"]]]],
+["문법",[
+ ["4국04-01","단어와 단어 간의 의미 관계를 파악한다.",["단어","단어","의미 관계","파악"]],
+ ["4국04-02","단어를 분류하고 국어사전을 활용하여 능동적인 국어 활동을 한다.",["단어","분류","국어사전","활용","능동적","국어 활동"]],
+ ["4국04-03","기본적인 문장의 짜임을 이해하고 적절하게 사용한다.",["기본적","문장","짜임","이해","적절","사용"]],
+ ["4국04-04","글과 담화에 쓰인 높임 표현과 지시·접속 표현을 이해하고 상황에 맞게 표현한다.",["글","담화","높임 표현","지시·접속 표현","이해","상황","표현"]],
+ ["4국04-05","언어가 의사소통과 관계 형성의 수단임을 이해하고 국어를 소중히 여기는 태도를 지닌다.",["언어","의사소통","관계 형성","수단","이해","국어","태도"]]]],
+["문학",[
+ ["4국05-01","인물과 이야기의 흐름을 중심으로 작품을 감상한다.",["인물","이야기","흐름","중심","작품","감상"]],
+ ["4국05-02","자신의 경험을 바탕으로 작품 속 세계와 현실 세계를 비교하여 작품을 감상한다.",["경험","작품 속 세계","현실 세계","비교","작품","감상"]],
+ ["4국05-03","작품을 듣거나 읽고 마음에 드는 작품을 소개한다.",["작품","마음","작품","소개"]],
+ ["4국05-04","감각적 표현에 유의하여 작품을 감상하고, 감각적 표현을 활용하여 자신의 생각이나 감정을 표현한다.",["감각적 표현","유의","작품","감상","감각적 표현","활용","생각","감정","표현"]],
+ ["4국05-05","재미나 감동을 느끼며 작품을 즐겨 감상하는 태도를 지닌다.",["재미","감동","작품","감상","태도"]]]],
+["매체",[
+ ["4국06-01","인터넷에서 학습에 필요한 다양한 자료를 탐색하고 목적에 맞게 자료를 선택한다.",["인터넷","학습","필요","다양","자료","탐색","목적","자료","선택"]],
+ ["4국06-02","매체를 활용하여 간단한 발표 자료를 만든다.",["매체","활용","간단","발표 자료"]],
+ ["4국06-03","매체 소통 윤리를 고려하여 매체 자료를 활용하고 공유한다.",["매체 소통 윤리","고려","매체 자료","활용","공유"]]]]
+];
+var G56_SRC=[
+["듣기·말하기",[
+ ["6국01-01","대화에서 생략된 내용을 추론하며 듣는다.",["대화","생략","내용","추론"]],
+ ["6국01-02","주장을 파악하고 이유나 근거가 타당한지 평가하며 듣는다.",["주장","파악","이유","근거","타당","평가"]],
+ ["6국01-03","주제와 관련하여 궁금한 내용을 질문하며 적극적으로 듣고 말한다.",["주제","관련","내용","질문","적극적"]],
+ ["6국01-04","면담의 절차를 이해하고 상대와 매체를 고려하여 면담한다.",["면담","절차","이해","상대","매체","고려","면담"]],
+ ["6국01-05","자료를 선별하여 핵심 정보를 중심으로 내용을 구성하고 매체를 활용하여 발표한다.",["자료","선별","핵심 정보","중심","내용","구성","매체","활용","발표"]],
+ ["6국01-06","토의에 협력적으로 참여하며 서로의 의견을 비교하고 조정한다.",["토의","협력적","참여","의견","비교","조정"]],
+ ["6국01-07","절차와 규칙을 지키고 타당한 이유와 근거를 제시하며 토론한다.",["절차","규칙","타당","이유","근거","제시","토론"]]]],
+["읽기",[
+ ["6국02-01","글의 구조를 고려하며 주제나 주장을 파악하고 글 내용을 요약한다.",["글","구조","고려","주제","주장","파악","글 내용","요약"]],
+ ["6국02-02","글에서 생략된 내용이나 함축된 표현을 문맥을 고려하여 추론한다.",["글","생략","내용","함축","표현","문맥","고려","추론"]],
+ ["6국02-03","글이나 자료를 읽고 내용의 타당성과 표현의 적절성을 평가한다.",["글","자료","내용","타당성","표현","적절성","평가"]],
+ ["6국02-04","문제 상황과 관련된 다양한 관점의 글을 읽고 이를 문제 해결에 활용한다.",["문제 상황","관련","다양","관점","글","문제 해결","활용"]],
+ ["6국02-05","긍정적인 읽기 동기를 형성하고 적극적으로 읽기에 참여하는 태도를 기른다.",["긍정적","읽기 동기","형성","적극적","읽기","참여","태도"]]]],
+["쓰기",[
+ ["6국03-01","알맞은 내용을 선정하여 대상의 특성이 나타나게 설명하는 글을 쓴다.",["내용","선정","대상","특성","설명","글"]],
+ ["6국03-02","적절한 근거를 사용하고 인용의 출처를 밝히며 주장하는 글을 쓴다.",["적절","근거","사용","인용","출처","주장","글"]],
+ ["6국03-03","체험한 일에 대한 감상을 나타내는 글을 쓴다.",["체험","일","감상","글"]],
+ ["6국03-04","독자와 매체를 고려하여 내용을 생성하고 표현하며 글을 쓴다.",["독자","매체","고려","내용","생성","표현","글"]],
+ ["6국03-05","쓰기 과정을 점검·조정하며 글을 쓰고, 글 전체를 대상으로 통일성 있게 고쳐 쓴다.",["쓰기 과정","점검","조정","글","글 전체","대상","통일성"]],
+ ["6국03-06","쓰기에 적극적으로 참여하며 자신의 글을 독자와 공유하는 태도를 지닌다.",["쓰기","적극적","참여","글","독자","공유","태도"]]]],
+["문법",[
+ ["6국04-01","음성 언어 및 문자 언어의 특성을 이해하고 다양한 매체 자료에서 표현 효과를 평가한다.",["음성 언어","문자 언어","특성","이해","다양","매체 자료","표현 효과","평가"]],
+ ["6국04-02","표준어와 방언의 기능을 파악하고 언어 공동체와 국어생활과의 관계를 이해한다.",["표준어","방언","기능","파악","언어 공동체","국어생활","관계","이해"]],
+ ["6국04-03","고유어와 관용 표현의 쓰임과 가치를 이해하고 상황에 맞게 표현한다.",["고유어","관용 표현","쓰임","가치","이해","상황","표현"]],
+ ["6국04-04","문장 성분을 이해하고 호응 관계가 올바른 문장을 구성한다.",["문장 성분","이해","호응 관계","문장","구성"]],
+ ["6국04-05","글과 담화에 쓰인 시간 표현을 이해하고 상황에 맞게 표현한다.",["글","담화","시간 표현","이해","상황","표현"]],
+ ["6국04-06","글과 담화에 쓰인 단어 및 문장, 띄어쓰기를 민감하게 살펴 바르게 고치는 태도를 지닌다.",["글","담화","단어","문장","띄어쓰기","민감","태도"]]]],
+["문학",[
+ ["6국05-01","작가의 의도를 생각하며 작품을 읽는다.",["작가","의도","생각","작품"]],
+ ["6국05-02","비유적 표현의 효과에 유의하여 작품을 감상한다.",["비유적 표현","효과","유의","작품","감상"]],
+ ["6국05-03","소설이나 극을 읽고 인물, 사건, 배경을 파악한다.",["소설","극","인물","사건","배경","파악"]],
+ ["6국05-04","인상적인 부분을 중심으로 작품에 대한 의견을 나눈다.",["인상적","부분","중심","작품","의견"]],
+ ["6국05-05","자신의 경험을 시, 소설, 극, 수필 등 적절한 갈래로 표현한다.",["경험","시","소설","극","수필","적절","갈래","표현"]],
+ ["6국05-06","작품을 읽고 자신의 삶과 연관 지어 성찰하는 태도를 지닌다.",["작품","삶","연관","성찰","태도"]]]],
+["매체",[
+ ["6국06-01","정보 검색 도구를 활용하여 자신의 목적에 맞는 매체 자료를 찾는다.",["정보 검색 도구","활용","목적","매체 자료"]],
+ ["6국06-02","뉴스 및 각종 정보 매체 자료의 신뢰성을 평가한다.",["뉴스","정보 매체 자료","신뢰성","평가"]],
+ ["6국06-03","적합한 양식과 수용자의 반응을 고려하여 복합양식 매체 자료를 제작하고 공유한다.",["적합","양식","수용자","반응","고려","복합양식 매체 자료","제작","공유"]],
+ ["6국06-04","자신의 매체 이용 양상에 대해 성찰한다.",["매체 이용 양상","성찰"]]]]
+];
+function flat(src){var out=[];src.forEach(function(a){a[1].forEach(function(s){out.push({id:s[0],area:a[0],code:'['+s[0]+']',text:s[1],keywords:s[2]})})});return out}
+var G34=flat(G34_SRC),G56=flat(G56_SRC);
+
+var AREAS=["듣기·말하기","읽기","쓰기","문법","문학","매체"];
+var CORE_TITLE="중요한 핵심 낱말을 눌러 보세요",CORE_SUB="조사와 어미는 그대로 남고 핵심 낱말만 빈칸이 돼요. 다시 누르면 선택이 풀려요.";
+var BANDS={
+  g12:{label:"1~2학년군",data:G12,title:"중요한 핵심 명사를 눌러 보세요",sub:"조사는 그대로 남고 명사만 빈칸이 돼요. 다시 누르면 선택이 풀려요.",demo:["순서를","＿＿를"]},
+  g34:{label:"3~4학년군",data:G34,title:CORE_TITLE,sub:CORE_SUB,demo:["요약한다","＿＿한다"]},
+  g56:{label:"5~6학년군",data:G56,title:CORE_TITLE,sub:CORE_SUB,demo:["추론하며","＿＿하며"]}
+};
+
+/* ---------- 상태 ---------- */
+var band='g12', mode='student';
+var area={g12:AREAS[0],g34:AREAS[0],g56:AREAS[0]}, tArea={g12:AREAS[0],g34:AREAS[0],g56:AREAS[0]};
+var selected={g12:new Set(),g34:new Set(),g56:new Set()};
+var mine={};                 // 이 브라우저가 마지막으로 제출한 문서 id (학년군별)
+var store={canWrite:true};
+var configured=null,unlocked=false,settingPw=false,teacherPw='',loading=false,pollTimer=null;
+var subsAll=[],viewId=null,openKey=null;
+
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function B(){return BANDS[band]}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+var toastTimer;
+function toast(m){var e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){e.classList.remove('show')},2800)}
+
+function ask(title,body,okText,cancelText){
+  return new Promise(function(res){
+    $('#modalTitle').textContent=title;$('#modalBody').textContent=body;
+    $('#modalOk').textContent=okText||'확인';$('#modalCancel').textContent=cancelText||'취소';
+    var m=$('#modal');m.hidden=false;$('#modalOk').focus();
+    function done(v){m.hidden=true;$('#modalOk').onclick=$('#modalCancel').onclick=null;res(v)}
+    $('#modalOk').onclick=function(){done(true)};$('#modalCancel').onclick=function(){done(false)};
+  });
+}
+
+/* ---------- 문장을 낱말 단위로 나누기 ---------- */
+// 고를 수 있는 낱말 뒤에 붙은 조사·어미(tail)는 낱말과 한 줄에 묶는다.
+function units(s){
+  var out=[],cur=0;
+  s.keywords.forEach(function(w,i){
+    var st=s.text.indexOf(w,cur);if(st<0)return;
+    if(st>cur)out.push({plain:s.text.slice(cur,st)});
+    out.push({i:i,word:w,tail:''});cur=st+w.length;
+  });
+  if(cur<s.text.length)out.push({plain:s.text.slice(cur)});
+  for(var k=1;k<out.length;k++){
+    if(out[k].plain!==undefined&&out[k-1].word!==undefined){
+      var m=out[k].plain.match(/^\S+/);
+      if(m){out[k-1].tail=m[0];out[k].plain=out[k].plain.slice(m[0].length)}
+    }
+  }
+  return out.filter(function(u){return u.word!==undefined||u.plain});
+}
+function keyInfo(k){
+  var p=k.lastIndexOf(':'),id=k.slice(0,p),i=Number(k.slice(p+1));
+  var s=B().data.find(function(x){return x.id===id});
+  return s&&s.keywords[i]!==undefined?{s:s,i:i,text:s.keywords[i]}:null;
+}
+function countsByArea(set){
+  var c={};
+  set.forEach(function(k){var info=keyInfo(k);if(info)c[info.s.area]=(c[info.s.area]||0)+1});
+  return c;
+}
+function areaNav(el,current,counts){
+  el.innerHTML=AREAS.map(function(a){
+    return '<button class="area'+(a===current?' active':'')+'" data-area="'+a+'" aria-pressed="'+(a===current)+'">'+a+(counts&&counts[a]?'<em>'+counts[a]+'</em>':'')+'</button>';
+  }).join('');
+}
+
+/* ---------- 학생 화면 ---------- */
+function blankWidth(w){return Math.max(2,w.length)*1.05}
+function paintWord(btn,on){
+  btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on);
+  if(on){btn.style.minWidth=blankWidth(btn.dataset.word)+'em';btn.innerHTML='<span class="blankline"></span>'}
+  else{btn.style.minWidth='';btn.textContent=btn.dataset.word}
+}
+function updateCount(){
+  var n=selected[band].size;
+  $('#topCount').textContent=n;$('#meter').textContent=n+'개';
+  areaNav($('#studentAreas'),area[band],countsByArea(selected[band]));
+}
+function renderStudent(){
+  var b=B(),sel=selected[band],list=b.data.filter(function(s){return s.area===area[band]});
+  $('#introTitle').textContent=b.title;$('#introSub').textContent=b.sub;
+  $('#introDemo').innerHTML=esc(b.demo[0])+' → <mark>'+esc(b.demo[1])+'</mark>';
+  $('#areaTitle').textContent=area[band];$('#areaCount').textContent=list.length+'개 성취기준';
+  $('#cards').innerHTML=list.map(function(s){
+    return '<article class="card"><code>'+s.code+'</code><div class="words">'+units(s).map(function(u){
+      if(u.word===undefined)return '<span>'+esc(u.plain)+'</span>';
+      var k=s.id+':'+u.i,on=sel.has(k);
+      return '<span class="unit"><button class="word'+(on?' on':'')+'" data-key="'+esc(k)+'" data-word="'+esc(u.word)+'" aria-label="'+esc(u.word)+'" aria-pressed="'+on+'"'+(on?' style="min-width:'+blankWidth(u.word)+'em"':'')+'>'+(on?'<span class="blankline"></span>':esc(u.word))+'</button>'+esc(u.tail)+'</span>';
+    }).join('')+'</div></article>';
+  }).join('');
+  updateCount();
+}
+$('#cards').addEventListener('click',function(e){
+  var b=e.target.closest('.word');if(!b)return;
+  var sel=selected[band],k=b.dataset.key,on=!sel.has(k);
+  on?sel.add(k):sel.delete(k);paintWord(b,on);updateCount();
+});
+$('#studentAreas').addEventListener('click',function(e){
+  var b=e.target.closest('.area');if(!b)return;area[band]=b.dataset.area;renderStudent();
+});
+$('#clear').onclick=function(){selected[band].clear();$('#done').hidden=true;renderStudent()};
+
+function normNick(v){return v.trim().replace(/\s+/g,' ')}
+// 제출 저장 창구: 구글 Apps Script 웹 앱 (구글 시트에 기록)
+var API_URL='https://script.google.com/macros/s/AKfycby_VHy490QJMAc7sJcHXOyTbWbhpEQvGcSgu_IOnbH1r50YlOxElV208BFLb-4yyKm6_A/exec';
+function run(fn){
+  var args=[].slice.call(arguments,1);
+  if(window.google&&google.script&&google.script.run){
+    return new Promise(function(res,rej){var r=google.script.run.withSuccessHandler(res).withFailureHandler(rej);r[fn].apply(r,args)});
+  }
+  var body={action:fn};
+  if(fn==='submit'){body.payload=args[0];body.force=!!args[1]}
+  else if(fn==='teacherData'){body.pw=args[0]}
+  else if(fn==='deleteSubs'){body.pw=args[0];body.keys=args[1]}
+  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),credentials:'omit',redirect:'follow'})
+    .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json()})
+    .then(function(d){if(!d||!d.ok)throw new Error((d&&d.error)||'error');return d.result});
+}
+function errText(e,fallback){
+  var m=e&&e.message?String(e.message).replace(/^(Exception|Error):\s*/,''):'';
+  return /[가-힣]/.test(m)?m:fallback;
+}
+function pickedWords(){
+  var sel=selected[band],out=[];
+  B().data.forEach(function(s){
+    var w=[];s.keywords.forEach(function(k,i){if(sel.has(s.id+':'+i))w.push(k)});
+    if(w.length)out.push(s.code+' '+w.join(', '));
+  });
+  return out.join(' / ');
+}
+function showDone(nick){
+  var c=countsByArea(selected[band]);
+  $('#doneTitle').textContent='✓ '+nick+'의 마음속 밑줄을 저장했어요.';
+  $('#doneTags').innerHTML=AREAS.map(function(a){return '<span>'+a+' '+(c[a]||0)+'개</span>'}).join('');
+  $('#done').hidden=false;
+}
+async function submit(){
+  var nick=normNick($('#nick').value),len=Array.from(nick).length;
+  if(len<2||len>12)return toast('별명은 2~12글자로 적어 주세요.');
+  if(!selected[band].size)return toast('중요한 낱말을 하나 이상 골라 주세요.');
+  var key=band+'|'+nick.toLowerCase(),btn=$('#submit');
+  var payload={band:band,nickname:nick,picks:Array.from(selected[band]).sort(),words:pickedWords()};
+  btn.disabled=true;
+  try{
+    var r=await run('submit',payload,mine[band]===key);
+    if(r&&r.exists){
+      var ok=await ask('이미 제출된 별명이에요','“'+nick+'” 별명으로 낸 답안이 있어요. 내 답안이 맞으면 새 선택으로 바꿀 수 있어요.','내 답안 바꾸기','별명 고치기');
+      if(!ok){$('#nick').focus();return}
+      r=await run('submit',payload,true);
+    }
+    mine[band]=key;lsSet('maeumsok-mine',JSON.stringify(mine));lsSet('maeumsok-nick',nick);
+    showDone(nick);toast(nick+' 별명으로 제출했어요.');
+  }catch(e){toast(errText(e,'제출하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'))}
+  finally{btn.disabled=false}
+}
+$('#submit').onclick=submit;
+$('#nick').addEventListener('keydown',function(e){if(e.key==='Enter')submit()});
+
+/* ---------- 교사 화면: 비밀번호 문 (비밀번호는 서버에서 확인) ---------- */
+function renderGate(){
+  var msg;
+  if(configured===null)msg='불러오는 중이에요.';
+  else if(configured==='err')msg='연결하지 못했어요. 페이지를 새로고침해 주세요.';
+  else if(configured===false)msg='아직 교사 비밀번호가 없어요. 구글 드라이브의 ‘마음속 밑줄 제출 기록’ 시트에서 ‘설정’ 탭 B1 칸에 비밀번호를 적은 뒤 교사 결과를 다시 눌러 주세요.';
+  else msg='비밀번호를 입력하면 학급 결과가 열려요.';
+  $('#gateTitle').textContent='결과를 확인합니다';$('#gateMsg').textContent=msg;
+  $('#unlockForm').hidden=configured!==true;
+}
+$('#unlockForm').addEventListener('submit',async function(e){
+  e.preventDefault();$('#gateErr').textContent='';
+  var pw=$('#pw').value,btn=this.querySelector('button');if(!pw)return;
+  btn.disabled=true;
+  try{
+    var r=await run('teacherData',pw);
+    if(r.status==='ok'){teacherPw=pw;unlocked=true;$('#pw').value='';applyData(r.subs);startPoll();renderTeacher()}
+    else if(r.status==='unset'){configured=false;renderTeacher()}
+    else $('#gateErr').textContent='비밀번호를 다시 확인해 주세요.';
+  }catch(err){$('#gateErr').textContent='연결하지 못했어요. 잠시 뒤 다시 눌러 주세요.'}
+  finally{btn.disabled=false}
+});
+$('#lock').onclick=function(){unlocked=false;teacherPw='';subsAll=[];stopPoll();viewId=null;openKey=null;renderTeacher()};
+
+/* ---------- 교사 화면: 결과 불러오기 (15초마다 새로 읽음) ---------- */
+function applyData(list){
+  subsAll=(list||[]).map(function(v){
+    return {id:String(v.id),band:v.band,nickname:String(v.nickname||'이름 없음'),picks:Array.isArray(v.picks)?v.picks.map(String):[],updatedAt:v.updatedAt||''};
+  });
+}
+async function reload(quiet){
+  if(!unlocked||loading)return false;loading=true;
+  try{
+    var r=await run('teacherData',teacherPw);
+    if(r.status==='ok'){applyData(r.subs);if(mode==='teacher')renderTeacher();return true}
+    unlocked=false;teacherPw='';stopPoll();renderTeacher();toast('비밀번호가 바뀌었어요. 다시 입력해 주세요.');return false;
+  }catch(e){if(!quiet)toast('결과를 불러오지 못했어요.');return false}
+  finally{loading=false}
+}
+function startPoll(){stopPoll();pollTimer=setInterval(function(){if(mode==='teacher'&&!document.hidden)reload(true)},15000)}
+function stopPoll(){if(pollTimer)clearInterval(pollTimer);pollTimer=null}
+$('#refresh').onclick=function(){reload(false).then(function(ok){if(ok)toast('최신 제출을 불러왔어요.')})};
+function bandSubs(){
+  return subsAll.filter(function(s){return s.band===band}).map(function(s){
+    var set=new Set(s.picks.filter(function(k){return keyInfo(k)}));
+    return {id:s.id,nickname:s.nickname,set:set,updatedAt:s.updatedAt};
+  }).sort(function(a,b){return a.nickname.localeCompare(b.nickname,'ko')});
+}
+function freq(subs){var m=new Map;subs.forEach(function(s){s.set.forEach(function(k){m.set(k,(m.get(k)||0)+1)})});return m}
+function eul(w){var c=w.charCodeAt(w.length-1);return c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28===0?'를':'을'}
+function when(iso){
+  var d=new Date(iso);if(isNaN(d))return '';
+  return d.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'numeric',minute:'2-digit'})+' 제출';
+}
+function renderTeacher(){
+  var showBoard=unlocked&&!settingPw;
+  $('#gate').hidden=showBoard;$('#board').hidden=!showBoard;
+  if(!showBoard){renderGate();return}
+  $('#tBand').textContent=B().label;
+  var subs=bandSubs(),N=subs.length,f=freq(subs);
+  var top=Array.from(f.entries()).sort(function(a,b){return b[1]-a[1]});
+  $('#studentTotal').textContent=N+'명';$('#positionTotal').textContent=f.size+'곳';
+  $('#topWord').textContent=top[0]?keyInfo(top[0][0]).text:'아직 없음';
+  $('#empty').hidden=N>0;$('#dashboard').hidden=N===0;
+  $('#clearBand').hidden=!(N>0);
+  if(!N)return;
+
+  var view=viewId?subs.find(function(s){return s.id===viewId}):null;
+  if(viewId&&!view)viewId=null;
+  $('#mapSub').textContent=view?'노란색으로 칠한 낱말이 이 학생이 고른 낱말이에요.':'색의 농도로 학급의 관심을 확인하세요. 낱말을 누르면 고른 학생이 보여요.';
+  $('#who').innerHTML='<button class="chip'+(view?'':' active')+'" data-view="">학급 전체<em>'+N+'명</em></button>'+subs.map(function(s){
+    return '<button class="chip'+(view&&view.id===s.id?' active':'')+'" data-view="'+s.id+'">'+esc(s.nickname)+'<em>'+s.set.size+'</em></button>';
+  }).join('');
+  var vb=$('#viewbar');vb.hidden=!view;
+  if(view)vb.innerHTML='<strong>'+esc(view.nickname)+'</strong><span>'+view.set.size+'개 선택</span><span>'+esc(when(view.updatedAt))+'</span>'+(store.canWrite?'<button class="linkbtn danger" data-del="'+view.id+'">이 답안 지우기</button>':'');
+  areaNav($('#teacherAreas'),tArea[band],view?countsByArea(view.set):null);
+
+  $('#heatlist').innerHTML=B().data.filter(function(s){return s.area===tArea[band]}).map(function(s){
+    var body=units(s).map(function(u){
+      if(u.word===undefined)return '<span>'+esc(u.plain)+'</span>';
+      var k=s.id+':'+u.i,plain='<span class="unit">'+esc(u.word)+esc(u.tail)+'</span>';
+      if(view)return view.set.has(k)?'<span class="unit"><span class="mine">'+esc(u.word)+'</span>'+esc(u.tail)+'</span>':plain;
+      var n=f.get(k)||0;if(!n)return plain;
+      var p=Math.round((.12+n/N*.68)*100);
+      return '<span class="unit"><button class="heatword'+(p>=55?' hot':'')+(openKey===k?' open':'')+'" style="--p:'+p+'%" data-key="'+esc(k)+'" aria-expanded="'+(openKey===k)+'">'+esc(u.word)+'<sup>'+n+'</sup></button>'+esc(u.tail)+'</span>';
+    }).join('');
+    var extra='';
+    if(!view&&openKey&&openKey.slice(0,openKey.lastIndexOf(':'))===s.id){
+      var who=subs.filter(function(x){return x.set.has(openKey)}),info=keyInfo(openKey);
+      if(info&&who.length)extra='<div class="pickers"><p><b>'+esc(info.text)+'</b>'+eul(info.text)+' 고른 학생 '+who.length+'명</p><div class="whobar">'+who.map(function(x){return '<button class="chip" data-view="'+x.id+'">'+esc(x.nickname)+'</button>'}).join('')+'</div></div>';
+    }
+    return '<article class="heat"><code>'+s.code+'</code><p>'+body+'</p>'+extra+'</article>';
+  }).join('');
+
+  $('#ranking').innerHTML=top.slice(0,8).map(function(x,i){
+    var info=keyInfo(x[0]);
+    return '<li><span>'+(i+1)+'</span><div><b>'+esc(info.text)+'</b><small>'+info.s.code+'</small><div class="bar"><i style="width:'+Math.round(x[1]/N*100)+'%"></i></div></div><b>'+x[1]+'명</b></li>';
+  }).join('');
+
+  $('#perspective').hidden=N<2;
+  if(N>=2){
+    var out=subs.map(function(s){
+      var sims=subs.filter(function(o){return o.id!==s.id}).map(function(o){
+        var inter=0,u=new Set(o.set);s.set.forEach(function(k){if(o.set.has(k))inter++;u.add(k)});
+        return u.size?inter/u.size:1;
+      });
+      return {id:s.id,nickname:s.nickname,count:s.set.size,d:Math.round((1-sims.reduce(function(a,b){return a+b},0)/sims.length)*100)};
+    }).sort(function(a,b){return b.d-a.d}).slice(0,4);
+    $('#students').innerHTML=out.map(function(s){
+      return '<button class="studentchip" data-view="'+s.id+'"><strong>'+esc(s.nickname)+'</strong><small>'+s.count+'개 선택</small><br><span>차이 '+s.d+'%</span></button>';
+    }).join('');
+  }
+}
+$('#board').addEventListener('click',async function(e){
+  var t=e.target.closest('[data-view],[data-key],[data-area],[data-del]');if(!t)return;
+  if(t.dataset.del!==undefined){
+    var s=bandSubs().find(function(x){return x.id===t.dataset.del});if(!s)return;
+    if(!await ask('이 답안을 지울까요?','“'+s.nickname+'” 학생의 제출 내용이 사라지고 되돌릴 수 없어요.','지우기'))return;
+    try{var r=await run('deleteSubs',teacherPw,[s.id]);if(r.status!=='ok')throw 0;viewId=null;await reload(true);toast('답안을 지웠어요.')}
+    catch(err){toast('지우지 못했어요.')}
+    return;
+  }
+  if(t.dataset.view!==undefined){
+    viewId=t.dataset.view||null;openKey=null;renderTeacher();
+    if(t.closest('#students,.pickers'))$('#who').scrollIntoView({block:'center',behavior:'smooth'});
+    return;
+  }
+  if(t.dataset.area!==undefined){tArea[band]=t.dataset.area;openKey=null;renderTeacher();return}
+  if(t.dataset.key!==undefined){openKey=openKey===t.dataset.key?null:t.dataset.key;renderTeacher()}
+});
+$('#clearBand').onclick=async function(){
+  var subs=bandSubs();if(!subs.length)return;
+  if(!await ask(B().label+' 제출을 모두 지울까요?',subs.length+'명의 답안이 사라지고 되돌릴 수 없어요. 새 학급과 시작할 때 쓰세요.','모두 지우기'))return;
+  try{
+    var r=await run('deleteSubs',teacherPw,subs.map(function(s){return s.id}));if(r.status!=='ok')throw 0;
+    viewId=null;openKey=null;await reload(true);toast('제출을 모두 지웠어요.');
+  }catch(err){toast('지우지 못했어요.')}
+};
+
+/* ---------- 화면 전환 ---------- */
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode').forEach(function(b){var on=b.dataset.mode===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+  $('#student').hidden=m!=='student';$('#teacher').hidden=m!=='teacher';$('.count').hidden=m==='teacher';
+  if(m==='teacher'){
+    if(unlocked)reload(true);
+    else{
+      configured=null;
+      run('teacherStatus').then(function(r){configured=!!(r&&r.configured);renderTeacher()})
+        .catch(function(){configured='err';renderTeacher()});
+    }
+    renderTeacher();
+  }
+}
+function setBand(b){
+  band=b;lsSet('maeumsok-band',b);viewId=null;openKey=null;
+  document.querySelectorAll('.band').forEach(function(x){var on=x.dataset.band===b;x.classList.toggle('active',on);x.setAttribute('aria-pressed',on)});
+  $('#bandEyebrow').textContent='초등 국어 '+B().label;$('#done').hidden=true;
+  renderStudent();if(mode==='teacher')renderTeacher();
+}
+document.querySelectorAll('.mode').forEach(function(b){b.onclick=function(){setMode(b.dataset.mode)}});
+document.querySelectorAll('.band').forEach(function(b){b.onclick=function(){setBand(b.dataset.band)}});
+
+/* ---------- 시작 ---------- */
+try{mine=JSON.parse(lsGet('maeumsok-mine')||'{}')||{}}catch(e){mine={}}
+$('#nick').value=lsGet('maeumsok-nick')||'';
+var savedBand=lsGet('maeumsok-band');
+setBand(BANDS[savedBand]?savedBand:'g12');
+})();
+</script>
+</body>
+</html>
